@@ -472,6 +472,7 @@ describe('', function() {
 
         createSession(requestWithMaliciousCookie, response, function() {
           var cookie = response.cookies.shortlyid;
+          console.log('COOKIE', cookie);
           expect(cookie).to.exist;
           expect(cookie).to.not.equal(maliciousCookieHash);
           done();
@@ -480,7 +481,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Sessions and cookies', function() {
+  describe('Sessions and cookies', function() {
     var requestWithSession;
     var cookieJar;
 

@@ -79,12 +79,12 @@ app.post('/links',
 // Write your authentication routes here
 /************************************************************/
 
-app.get('/login', parseCookies,Auth.createSession,
+app.get('/login', parseCookies, Auth.createSession,
 (req, res) => {
   res.render('login');
 });
 
-app.post('/login', parseCookies,
+app.post('/login', parseCookies, Auth.createSession,
 (req, res) => {
   return models.Users.get({username: req.body.username})
     .then(({password, salt}) => {
@@ -97,7 +97,7 @@ app.post('/login', parseCookies,
     .catch(err => res.redirect('/login'));
 });
 
-app.post('/signup', parseCookies,Auth.createSession,
+app.post('/signup', parseCookies, Auth.createSession,
 (req, res) => {
   return models.Users.create(req.body)
     .then(() => res.redirect('/'))
