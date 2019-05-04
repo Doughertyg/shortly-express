@@ -78,6 +78,40 @@ app.post('/links',
 // Write your authentication routes here
 /************************************************************/
 
+app.get('/login', 
+(req, res) => {
+  res.render('login');
+});
+
+app.post('/login', 
+(req, res) => {
+  return models.Users.get({username: req.body.username})
+    .then(({password, salt}) => {
+      if(!models.Users.compare(req.body.password, password, salt)) {
+        res.redirect('/login');
+      } else {
+        res.redirect('/');
+      }
+    })
+    .catch(err => res.redirect('/login'));
+});
+
+app.post('/signup', 
+(req, res) => {
+  return models.Users.create(req.body)
+    .then(() => res.redirect('/'))
+    .catch((err) => {
+      if (err.errno === 1062) {
+        console.log(`${req.body.username} already exists!`);
+        res.redirect('/signup');
+      }
+    });
+});
+
+app.get('/signup', 
+(req, res) => {
+  res.render('signup');
+});
 
 
 /************************************************************/
