@@ -5,6 +5,7 @@ const partials = require('express-partials');
 const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');
 const models = require('./models');
+const parseCookies = require('./middleware/cookieParser');
 
 const app = express();
 
@@ -17,7 +18,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 
 
-app.get('/', 
+app.get('/', parseCookies, Auth.createSession,
 (req, res) => {
   res.render('index');
 });
@@ -27,7 +28,7 @@ app.get('/create',
   res.render('index');
 });
 
-app.get('/links', 
+app.get('/links',
 (req, res, next) => {
   models.Links.getAll()
     .then(links => {
@@ -78,6 +79,40 @@ app.post('/links',
 // Write your authentication routes here
 /************************************************************/
 
+app.get('/login', parseCookies, Auth.createSession,
+(req, res) => {
+  res.render('login');
+});
+
+app.post('/login', parseCookies, Auth.createSession,
+(req, res) => {
+  return models.Users.get({username: req.body.username})
+    .then(({password, salt}) => {
+      if(!models.Users.compare(req.body.password, password, salt)) {
+        res.redirect('/login');
+      } else {
+        res.redirect('/');
+      }
+    })
+    .catch(err => res.redirect('/login'));
+});
+
+app.post('/signup', parseCookies, Auth.createSession,
+(req, res) => {
+  return models.Users.create(req.body)
+    .then(() => res.redirect('/'))
+    .catch((err) => {
+      if (err.errno === 1062) {
+        console.log(`${req.body.username} already exists!`);
+        res.redirect('/signup');
+      }
+    });
+});
+
+app.get('/signup', parseCookies, Auth.createSession,
+(req, res) => {
+  res.render('signup');
+});
 
 
 /************************************************************/
